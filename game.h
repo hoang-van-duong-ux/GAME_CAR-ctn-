@@ -47,34 +47,34 @@ inline SDL_Texture* menuTexture;
 
 // ==== Khởi tạo game ====
 inline void setupGame(Graphics& graphics) {
+
     bg.setTexture(graphics.loadTexture(BACKGROUND_IMG));
-    menuTexture = graphics.loadTexture("graphics/background/menu.jpg");
+    menuTexture = graphics.loadTexture("graphics/background/menu.png");
 
     car.init(graphics.loadTexture(CAR_SPRITE_FILE), CAR_FRAMES, CAR_CLIPS);
     car_left.init(graphics.loadTexture("graphics/player/car_left.png"), CAR_FRAMES, CAR_CLIPS);
     car_right.init(graphics.loadTexture("graphics/player/car_right.png"), CAR_FRAMES, CAR_CLIPS);
     currentCar = &car;
 
-    initObstacles(graphics, 1); // tạo 7 obstacles ban đầu
+    initObstacles(graphics,7);
 
     gameState = GameState::MENU;
 }
 
 // ==== Xử lý sự kiện (phím bấm) ====
-inline void handleEvents() {
+inline void handleEvents(Graphics& graphics) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) quit = true;
         else if (e.type == SDL_KEYDOWN) {
-            if (e.key.keysym.sym == SDLK_SPACE && gameState == GameState::MENU)
-                gameState = GameState::PLAY;
-            else if (e.key.keysym.sym == SDLK_ESCAPE) {
+                if (e.key.keysym.sym == SDLK_ESCAPE && gameState==GameState::PLAY) {
                 if (gameState == GameState::PLAY) gameState = GameState::PAUSE;
                 else if (gameState == GameState::PAUSE) gameState = GameState::PLAY;
             }
         }
     }
 }
+
 
 // ==== Cập nhật di chuyển ====
 inline void updateGame() {
@@ -97,14 +97,15 @@ inline void updateGame() {
 inline void renderGame(Graphics& graphics) {
     graphics.prepareScene();
 
-    if (gameState != GameState::PLAY) {
+    if (gameState == GameState::MENU) {
         graphics.renderTexture(menuTexture, 0, 0);
-    } else {
+    }
+
+    if(gameState==GameState::PLAY){
         graphics.render_background(bg);
         currentCar->tick();
         graphics.render_car(player.x, player.y, *currentCar);
         renderObstacles(graphics);
-
     }
 
     graphics.presentScene();

@@ -36,14 +36,44 @@ inline const char* OBSTACLE_IMAGES[] = {
 inline int obsLanes[] = {65, 125, 200, 260, 340, 400, 473, 535};
 
 inline void initObstacles(Graphics& graphics, int num) {
-    srand(time(0));
+    obstacles.clear();
+
     for (int i = 0; i < num; ++i) {
         Obstacle obs;
         SDL_Texture* tex = graphics.loadTexture(OBSTACLE_IMAGES[i % 4]);
-        obs.init(obsLanes[rand()%8], -(i*300), 10 + num, tex, CAR_FRAMES, CAR_CLIPS);
+
+        bool valid;
+        int x, y;
+
+        do {
+            x = obsLanes[rand() % 8];
+            y = -(rand() % 150 + i * 150);
+            obs.init(x, y, 10 + num, tex, CAR_FRAMES, CAR_CLIPS);
+
+            SDL_Rect rect = obs.getRect();
+            valid = true;
+
+           for (const auto& other : obstacles) {
+                SDL_Rect otherRect = other.getRect();
+
+                if (SDL_HasIntersection(&rect, &otherRect)) {
+                    valid = false;
+                    break;
+                    }
+
+                if (abs(rect.y - otherRect.y) < 300 && rect.x == otherRect.x) {
+                    valid = false;
+                    break;
+                }
+
+            }
+
+        } while (!valid);
+
         obstacles.push_back(obs);
     }
 }
+
 
 inline void updateObstacles() {
     for (auto& obs : obstacles) {
@@ -69,7 +99,7 @@ inline void clearObstacles() {
 
 inline bool checkPlayerCollision(const SDL_Rect& playerRect) {
     for (auto& obs : obstacles) {
-        SDL_Rect obsRect = obs.getRect(); // <-- tạo biến tạm
+        SDL_Rect obsRect = obs.getRect();
         if (SDL_HasIntersection(&playerRect, &obsRect))
             return true;
     }

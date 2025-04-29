@@ -1,33 +1,29 @@
 # depslib dependency file v1.0
-1745823082 source:c:\users\pc\onedrive\desktop\game_car\main.cpp
-	<SDL.h>
-	<SDL_image.h>
-	<SDL_ttf.h>
+1745915813 source:c:\users\pc\onedrive\desktop\game_car\main.cpp
 	"graphics.h"
 	"defs.h"
 	"game.h"
 	"obstacle.h"
-	<bits/stdc++.h>
+	<ctime>
 
-1745418479 c:\users\pc\onedrive\desktop\game_car\graphics.h
+1745844188 c:\users\pc\onedrive\desktop\game_car\graphics.h
 	<SDL.h>
 	<SDL_image.h>
 	"defs.h"
 	<vector>
-	"game.h"
 
-1745418720 c:\users\pc\onedrive\desktop\game_car\defs.h
+1745915711 c:\users\pc\onedrive\desktop\game_car\defs.h
 
-1745470634 c:\users\pc\onedrive\desktop\game_car\game.h
-	<iostream>
-	<SDL.h>
-	<SDL_image.h>
-	"graphics.h"
+1745918683 c:\users\pc\onedrive\desktop\game_car\game.h
 	"defs.h"
+	<SDL.h>
+	"defs.h"
+	"graphics.h"
+	"obstacle.h"
 
-1745418479 c:\users\pc\onedrive\desktop\game_car\obstacle.h
+1745916695 c:\users\pc\onedrive\desktop\game_car\obstacle.h
 	<SDL.h>
 	<vector>
 	"graphics.h"
-	"game.h"
+	<ctime>
 
