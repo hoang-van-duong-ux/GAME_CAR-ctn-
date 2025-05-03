@@ -47,6 +47,7 @@ inline SDL_Texture* menuTexture;
 inline SDL_Texture* ttrTexture;
 inline SDL_Texture* pauseTexture;
 inline SDL_Texture* ppTexture;
+inline SDL_Texture* gameoverTexture;
 
 
 // ==== Khởi tạo game ====
@@ -57,6 +58,7 @@ inline void setupGame(Graphics& graphics) {
     ttrTexture  = graphics.loadTexture("graphics/background/ttr.png");
     pauseTexture  = graphics.loadTexture("graphics/background/pause.png");
     ppTexture  = graphics.loadTexture("graphics/background/point_pause.png");
+    gameoverTexture = graphics.loadTexture("graphics/background/gameover.png");
 
     car.init(graphics.loadTexture(CAR_SPRITE_FILE), CAR_FRAMES, CAR_CLIPS);
     car_left.init(graphics.loadTexture("graphics/player/car_left.png"), CAR_FRAMES, CAR_CLIPS);
@@ -64,6 +66,8 @@ inline void setupGame(Graphics& graphics) {
     currentCar = &car;
 
     initObstacles(graphics,8);
+    loadObstacleTextures(graphics);
+
 
     gameState = GameState::MENU;
 }
@@ -73,7 +77,7 @@ inline void resetGame(Graphics& graphics) {
     currentCar = &car;
 
     clearObstacles();
-    initObstacles(graphics, 8);
+    initObstacles(graphics, 5);
 }
 
 // ==== Xử lý sự kiện (phím bấm) ====
@@ -93,11 +97,11 @@ inline void handleEvents(Graphics& graphics) {
             int mouseY = e.button.y;
 
             if (gameState == GameState::MENU) {
-                if (mouseX >= 33 && mouseX <= 666 && mouseY >= 219 && mouseY <= 360) {
+                if (mouseX >= 269 && mouseX <= 429 && mouseY >= 259 && mouseY <= 320) {
                     resetGame(graphics);
                     gameState = GameState::PLAY;
                 }
-                else if (mouseX >= 33 && mouseX <= 666 && mouseY >= 394 && mouseY <= 513) {
+                else if (mouseX >= 133 && mouseX <= 566 && mouseY >= 354 && mouseY <= 413) {
                     gameState = GameState::TTR;
                 }
             }
@@ -108,27 +112,23 @@ inline void handleEvents(Graphics& graphics) {
                 }
             }
             if (gameState == GameState::PAUSE) {
-                if (mouseX >= 109 && mouseX <= 509 && mouseY >= 131 && mouseY <= 272) {
+                if (mouseX >= 180 && mouseX <= 519 && mouseY >= 118 && mouseY <= 258) {
                     gameState = GameState::PLAY;
                 }
-            }
-            if (gameState == GameState::PAUSE) {
-                if (mouseX >= 109 && mouseX <= 590 && mouseY >= 306 && mouseY <= 426) {
+                if (mouseX >= 215 && mouseX <= 481 && mouseY >= 278 && mouseY <= 416) {
                     resetGame(graphics);
                     gameState = GameState::PLAY;
                 }
-            }
-            if (gameState == GameState::PAUSE) {
                 if (mouseX >= 0 && mouseX <= 590 && mouseY >= 459 && mouseY <= 579) {
                     gameState = GameState::MENU;
                 }
             }
-
-        }
-        if (gameState == GameState::GAMEOVER) {
-
-            gameState = GameState::MENU;
-            resetGame(graphics);
+            if (gameState == GameState::GAMEOVER ) {
+                 if (mouseX >= 306 && mouseX <= 393 && mouseY >= 488 && mouseY <= 542 ){
+                    resetGame(graphics);
+                    gameState = GameState::MENU;
+                    }
+            }
         }
     }
 }
@@ -164,17 +164,33 @@ inline void renderGame(Graphics& graphics) {
     graphics.renderTexture(ttrTexture, 0, 0);
     }
 
-    if (gameState == GameState::PAUSE) {
-        graphics.renderTexture(pauseTexture, 0, 0);
-    }
+    if (gameState == GameState::PLAY || gameState == GameState::PAUSE || gameState == GameState::GAMEOVER) {
 
-    if(gameState==GameState::PLAY){
-        graphics.renderTexture(ppTexture,0,0);
+        graphics.renderTexture(ppTexture, 0, 0);
         graphics.render_background(bg);
-        currentCar->tick();
+        if (gameState == GameState::PLAY) currentCar->tick();
         graphics.render_car(player.x, player.y, *currentCar);
         renderObstacles(graphics);
-    }
+
+        if (gameState == GameState::PAUSE) {
+            SDL_SetRenderDrawBlendMode(graphics.renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(graphics.renderer, 0, 0, 0, 120);
+            SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+            SDL_RenderFillRect(graphics.renderer, &overlay);
+
+            graphics.renderTexture(pauseTexture, 0, 0);
+        }
+
+        if (gameState == GameState::GAMEOVER) {
+            SDL_SetRenderDrawBlendMode(graphics.renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(graphics.renderer, 0, 0, 0, 120);
+            SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+            SDL_RenderFillRect(graphics.renderer, &overlay);
+
+            graphics.renderTexture(gameoverTexture, 0, 0);
+        }
+}
+
 
     graphics.presentScene();
 }
@@ -186,6 +202,9 @@ inline bool isPlaying() { return gameState == GameState::PLAY; }
 // ==== Dọn bộ nhớ khi thoát game ====
 inline void cleanupGame(Graphics& graphics) {
     clearObstacles();
+
+    freeObstacleTextures();
+
     SDL_DestroyTexture(menuTexture);
 }
 

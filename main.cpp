@@ -11,13 +11,15 @@ int main(int argc, char* argv[]) {
 
     while (!isQuit()) {
         handleEvents(graphics);
+
         if (isPlaying()) {
             updateGame();
         }
         renderGame(graphics);
-        SDL_Delay(50);
-    }
 
+        SDL_Delay(25);
+    }
     cleanupGame(graphics);
     return 0;
 }
+

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1745915813 source:c:\users\pc\onedrive\desktop\game_car\main.cpp
+1746081542 source:c:\users\pc\onedrive\desktop\game_car\main.cpp
 	"graphics.h"
 	"defs.h"
 	"game.h"
@@ -12,18 +12,21 @@
 	"defs.h"
 	<vector>
 
-1745915711 c:\users\pc\onedrive\desktop\game_car\defs.h
+1746081652 c:\users\pc\onedrive\desktop\game_car\defs.h
 
-1745918683 c:\users\pc\onedrive\desktop\game_car\game.h
+1746262901 c:\users\pc\onedrive\desktop\game_car\game.h
+	<bits/stdc++.h>
 	"defs.h"
 	<SDL.h>
 	"defs.h"
 	"graphics.h"
 	"obstacle.h"
 
-1745916695 c:\users\pc\onedrive\desktop\game_car\obstacle.h
+1746262953 c:\users\pc\onedrive\desktop\game_car\obstacle.h
 	<SDL.h>
 	<vector>
+	<algorithm>
+	<cstdlib>
 	"graphics.h"
-	<ctime>
+	"defs.h"
 
