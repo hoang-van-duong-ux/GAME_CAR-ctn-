@@ -36,9 +36,6 @@ inline std::vector<Obstacle> obstacles;
 inline const char* OBSTACLE_IMAGES[] = {
     "graphics/button/oto_canh_sat.png",
     "graphics/button/thung.png",
-    "graphics/button/oto_con.png",
-    "graphics/button/oto_tải.png"
-   // "graphics/button/oto_con.png",
     "graphics/button/oto_tải.png" ,
     "graphics/button/oto_con1.png"
 };

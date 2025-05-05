@@ -36,6 +36,20 @@ struct Sprite {
     void tick() { currentFrame = (currentFrame + 1) % clips.size(); }
     const SDL_Rect* getCurrentClip() const { return &clips[currentFrame]; }
 };
+struct SpriteBoom {
+    SDL_Texture* texture;
+    std::vector<SDL_Rect> clips;
+    int currentFrame = 0;
+
+    void init(SDL_Texture* _texture, int frames, const int _clips[][8]) {
+        texture = _texture;
+        for (int i = 0; i < frames; ++i)
+            clips.push_back({ _clips[i][0], _clips[i][1], _clips[i][2], _clips[i][3] /*,_clips[i][3] ,_clips[i][3] ,_clips[i][3] ,_clips[i][3]*/});
+    }
+
+    void tick() { currentFrame = (currentFrame + 1) % clips.size(); }
+    const SDL_Rect* getCurrentClip() const { return &clips[currentFrame]; }
+};
 
 struct Graphics {
     SDL_Renderer* renderer;
@@ -123,6 +137,17 @@ struct Graphics {
         }
     }
 
+    void setMusicVolume(int volume) {
+    Mix_VolumeMusic(volume);
+}
+
+void setSoundVolume(Mix_Chunk* chunk, int volume) {
+    if (chunk) {
+        Mix_VolumeChunk(chunk, volume);
+    }
+}
+
+
     void quit() {
         Mix_Quit();
         IMG_Quit();
@@ -137,6 +162,10 @@ struct Graphics {
     }
 
     void render_car(int x, int y, const Sprite& sprite) {
+        SDL_Rect dest = {x, y, sprite.getCurrentClip()->w, sprite.getCurrentClip()->h};
+        SDL_RenderCopy(renderer, sprite.texture, sprite.getCurrentClip(), &dest);
+    }
+     void render_boom(int x, int y, const SpriteBoom& sprite) {
         SDL_Rect dest = {x, y, sprite.getCurrentClip()->w, sprite.getCurrentClip()->h};
         SDL_RenderCopy(renderer, sprite.texture, sprite.getCurrentClip(), &dest);
     }

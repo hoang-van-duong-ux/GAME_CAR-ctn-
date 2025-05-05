@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
         handleEvents(graphics);
 
         if (isPlaying()) {
-            updateGame();
+            updateGame(graphics);
         }
         renderGame(graphics);
 
