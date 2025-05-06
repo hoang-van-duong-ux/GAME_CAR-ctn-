@@ -8,7 +8,6 @@
 #include "graphics.h"
 #include "defs.h"
 
-// Cấu trúc obstacle
 struct Obstacle {
     int x, y, speed;
     Sprite sprite;
@@ -29,39 +28,33 @@ struct Obstacle {
     }
 };
 
-// ==== Danh sách vật cản ====
-inline std::vector<Obstacle> obstacles;
+ std::vector<Obstacle> obstacles;
 
-// ==== Danh sách hình ảnh vật cản và texture ====
-inline const char* OBSTACLE_IMAGES[] = {
+ const char* OBSTACLE_IMAGES[] = {
     "graphics/button/oto_canh_sat.png",
     "graphics/button/thung.png",
     "graphics/button/oto_tải.png" ,
     "graphics/button/oto_con1.png"
 };
 
-inline SDL_Texture* obstacleTextures[4];
+ SDL_Texture* obstacleTextures[4];
 
-// ==== Vị trí các làn xe ====
-inline int obsLanes[] = {65, 125, 200, 260, 340, 400, 473, 535};
+ int obsLanes[] = {65, 125, 200, 260, 340, 400, 473, 535};
 
-// ==== Load texture 1 lần ====
-inline void loadObstacleTextures(Graphics& graphics) {
+ void loadObstacleTextures(Graphics& graphics) {
     for (int i = 0; i < 4; ++i) {
         obstacleTextures[i] = graphics.loadTexture(OBSTACLE_IMAGES[i]);
     }
 }
 
-// ==== Giải phóng texture ====
-inline void freeObstacleTextures() {
+ void freeObstacleTextures() {
     for (int i = 0; i < 4; ++i) {
         SDL_DestroyTexture(obstacleTextures[i]);
         obstacleTextures[i] = nullptr;
     }
 }
 
-// ==== Tạo obstacle ban đầu ====
-inline void initObstacles(Graphics& graphics, int num) {
+ void initObstacles(Graphics& graphics, int num) {
     obstacles.clear();
     std::vector<int> usedLanes;
 
@@ -74,7 +67,7 @@ inline void initObstacles(Graphics& graphics, int num) {
         usedLanes.push_back(laneIndex);
         int x = obsLanes[laneIndex];
         int y = -(rand() % 150 + i * 150);
-        int speed = rand() % 5 + 5;
+        int speed = rand() % 20 + 5;
 
         Obstacle obs;
         SDL_Texture* tex = obstacleTextures[i % 4];
@@ -83,8 +76,7 @@ inline void initObstacles(Graphics& graphics, int num) {
     }
 }
 
-// ==== Cập nhật obstacle mỗi frame ====
-inline void updateObstacles() {
+ void updateObstacles() {
     bool laneOccupied[8] = {false};
 
     for (auto& obs : obstacles) {
@@ -97,7 +89,6 @@ inline void updateObstacles() {
         }
 
         if (obs.y > SCREEN_HEIGHT) {
-            // Tìm làn mới không bị chiếm
             std::vector<int> freeLanes;
             for (int i = 0; i < 8; ++i) {
                 if (!laneOccupied[i])
@@ -114,19 +105,16 @@ inline void updateObstacles() {
     }
 }
 
-// ==== Vẽ tất cả obstacles ====
-inline void renderObstacles(Graphics& graphics) {
+void renderObstacles(Graphics& graphics) {
     for (auto& obs : obstacles)
         graphics.render_car(obs.x, obs.y, obs.sprite);
 }
 
-// ==== Xoá sạch ====
-inline void clearObstacles() {
+ void clearObstacles() {
     obstacles.clear();
 }
 
-// ==== Kiểm tra va chạm ====
-inline bool checkPlayerCollision(const SDL_Rect& playerRect) {
+ bool checkPlayerCollision(const SDL_Rect& playerRect) {
     for (auto& obs : obstacles) {
         SDL_Rect obsRect = obs.getRect();
         if (SDL_HasIntersection(&playerRect, &obsRect))

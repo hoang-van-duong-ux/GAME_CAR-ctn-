@@ -30,42 +30,54 @@ struct Mouse {
     SDL_Rect getRect() const { return {x, y, 50, 70}; }
 };
 
-enum class GameState { MENU, PLAY, PAUSE, GAMEOVER, TTR };
-enum class MusicState {PAUSE_MUSIC,PLAY_MUSIC};
+enum class GameState  { MENU, PLAY, PAUSE, GAMEOVER, TTR };
+enum class MusicState {PAUSE_MUSIC,PLAY_MUSIC,NONE};
+enum class FlashCar   { ON , OFF };
 
-inline GameState gameState;
-inline MusicState musicState;
-inline bool quit = false;
-inline Mouse player;
-inline ScrollingBackground bg;
-inline Sprite car, car_left, car_right;
-inline Sprite* currentCar;
-inline SpriteBoom Boom;
-inline SpriteBoom* Boomm;
+ GameState gameState;
+ MusicState musicState;
+FlashCar flashCar;
 
-inline SDL_Texture* menuTexture;
-inline SDL_Texture* ttrTexture;
-inline SDL_Texture* pauseTexture;
-inline SDL_Texture* ppTexture;
-inline SDL_Texture* gameoverTexture;
+ bool quit = false;
+ Mouse player;
+ ScrollingBackground bg;
+ Sprite car, car_left, car_right;
+ Sprite* currentCar;
+ SpriteBoom Boom;
+ SpriteBoom* Boomm;
 
-inline Mix_Music* gMusic;
-inline Mix_Music* gIntro;
-inline Mix_Chunk* click;
-inline Mix_Chunk* boom;
-inline Mix_Chunk* car_horn;
-inline SDL_Texture* musicTexture;
-inline  static Mix_Music* currentMusic = nullptr;
+ SDL_Texture* menuTexture;
+ SDL_Texture* ttrTexture;
+ SDL_Texture* pauseTexture;
+ SDL_Texture* ppTexture;
+ SDL_Texture* gameoverTexture;
+ SDL_Texture* Flash;
+ SDL_Texture* flash_left;
+ SDL_Texture* flash_right;
+ SDL_Texture* flash;
+ SDL_Texture* musicTexture;
+
+ Mix_Music* gMusic;
+ Mix_Music* gIntro;
+ Mix_Chunk* click;
+ Mix_Chunk* boom;
+ Mix_Chunk* car_horn;
+  static Mix_Music* currentMusic = nullptr;
 
 
-inline void setupGame(Graphics& graphics) {
+ void setupGame(Graphics& graphics) {
     bg.setTexture(graphics.loadTexture(BACKGROUND_IMG));
     menuTexture = graphics.loadTexture("graphics/background/menu.png");
     ttrTexture  = graphics.loadTexture("graphics/background/ttr.png");
     pauseTexture  = graphics.loadTexture("graphics/background/pause.png");
     ppTexture  = graphics.loadTexture("graphics/background/point_pause.png");
     gameoverTexture = graphics.loadTexture("graphics/background/gameover.png");
-    musicTexture=graphics.loadTexture("graphics/out/music.png");
+    musicTexture = graphics.loadTexture("graphics/out/music.png");
+    flash_left = graphics.loadTexture("graphics/out/flash_left.png");
+    flash = graphics.loadTexture("graphics/out/flash.png");
+    flash_right = graphics.loadTexture("graphics/out/flash_right.png");
+
+    Flash=flash;
 
     car.init(graphics.loadTexture(CAR_SPRITE_FILE), CAR_FRAMES, CAR_CLIPS);
     car_left.init(graphics.loadTexture("graphics/player/car_left.png"), CAR_FRAMES, CAR_CLIPS);
@@ -83,14 +95,17 @@ inline void setupGame(Graphics& graphics) {
     initObstacles(graphics, 8);
     loadObstacleTextures(graphics);
 
+    flashCar = FlashCar::OFF;
+
     musicState = MusicState::PLAY_MUSIC;
     gameState = GameState::MENU;
     graphics.play(gIntro);
     graphics.setMusicVolume(45);
-    graphics.setSoundVolume(boom, 128);
+    graphics.setSoundVolume(boom,70);
+    graphics.setSoundVolume(click,20);
 }
 
-inline void controlMusic(Graphics& graphics) {
+ void controlMusic(Graphics& graphics) {
 
     Mix_Music* desiredMusic = nullptr;
     if(musicState==MusicState::PLAY_MUSIC){
@@ -106,10 +121,14 @@ inline void controlMusic(Graphics& graphics) {
             graphics.play(desiredMusic);
             currentMusic = desiredMusic;
         }
-    }else if (musicState==MusicState::PAUSE_MUSIC) Mix_HaltMusic();
+    }
+    if (musicState==MusicState::PAUSE_MUSIC){
+        Mix_HaltMusic();
+        currentMusic = nullptr;
+    }
 }
 
-inline void resetGame(Graphics& graphics) {
+ void resetGame(Graphics& graphics) {
     player = Mouse();
     currentCar = &car;
 
@@ -117,19 +136,22 @@ inline void resetGame(Graphics& graphics) {
     initObstacles(graphics, 5);
 }
 
-inline void handleEvents(Graphics& graphics) {
+ void handleEvents(Graphics& graphics) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) quit = true;
 
         if (e.type == SDL_KEYDOWN) {
+
             if (e.key.keysym.sym == SDLK_ESCAPE && gameState == GameState::PLAY) {
                 gameState = GameState::PAUSE;
             }
             if (e.key.keysym.sym == SDLK_v && gameState == GameState::PLAY) {
                 graphics.plays(car_horn);
             }
-
+            if (e.key.keysym.sym == SDLK_f && gameState == GameState :: PLAY) {
+                flashCar = (flashCar == FlashCar::ON) ? FlashCar::OFF : FlashCar::ON;
+            }
         }
 
         if (e.type == SDL_MOUSEBUTTONDOWN) {
@@ -137,68 +159,64 @@ inline void handleEvents(Graphics& graphics) {
             int mouseY = e.button.y;
             graphics.plays(click);
 
-            if (mouseX >= 640 && mouseX <= 700 && mouseY >= 0 && mouseY <= 60 && musicState==MusicState::PLAY_MUSIC){
-                musicState = MusicState ::PAUSE_MUSIC;
+            if (mouseX >= 640 && mouseX <= 700 && mouseY >= 0 && mouseY <= 60 && musicState == MusicState::PAUSE_MUSIC) {
+                musicState = MusicState::PLAY_MUSIC;
             }
+            else if (mouseX >= 580 && mouseX <= 640 && mouseY >= 0 && mouseY <= 60 && musicState == MusicState::PLAY_MUSIC) {
+                musicState = MusicState::PAUSE_MUSIC;
+                }
 
-            if (mouseX >= 640 && mouseX <= 700 && mouseY >= 0 && mouseY <= 60 && musicState==MusicState::PAUSE_MUSIC){
-                musicState = MusicState ::PLAY_MUSIC;
-            }
+            switch (gameState) {
+                case GameState::PLAY:
+                    if (mouseX >= 320 && mouseX <= 380 && mouseY >= 0 && mouseY <= 60) {
+                        gameState = GameState::PAUSE;
+                    }
+                    break;
 
-            if(gameState==GameState::PLAY){
-               if (mouseX >= 320 && mouseX <= 380 && mouseY >= 0 && mouseY <= 60 ) {
-                    gameState=GameState::PAUSE;
-               }
+                case GameState::MENU:
+                    if (mouseX >= 269 && mouseX <= 429 && mouseY >= 259 && mouseY <= 320) {
+                        resetGame(graphics);
+                        gameState = GameState::PLAY;
+                    } else if (mouseX >= 133 && mouseX <= 566 && mouseY >= 354 && mouseY <= 444) {
+                        gameState = GameState::TTR;
+                    }
+                    break;
 
-            }
+                case GameState::TTR:
+                    if (mouseX >= 0 && mouseX <= 93 && mouseY >= 0 && mouseY <= 62) {
+                        gameState = GameState::MENU;
+                    }
+                    break;
 
-            if (gameState == GameState::MENU) {
-                if (mouseX >= 269 && mouseX <= 429 && mouseY >= 259 && mouseY <= 320) {
-                    resetGame(graphics);
+            case GameState::PAUSE:
+                    if (mouseX >= 180 && mouseX <= 519 && mouseY >= 118 && mouseY <= 258) {
+                        gameState = GameState::PLAY;
+                    } else if (mouseX >= 215 && mouseX <= 481 && mouseY >= 278 && mouseY <= 416) {
+                        resetGame(graphics);
                     gameState = GameState::PLAY;
-                }
-                else if (mouseX >= 133 && mouseX <= 566 && mouseY >= 354 && mouseY <= 444) {
-                    gameState = GameState::TTR;
-                }
-            }
+                    } else if (mouseX >= 0 && mouseX <= 590 && mouseY >= 459 && mouseY <= 579) {
+                        gameState = GameState::MENU;
+                    }
+                    break;
 
-            if (gameState == GameState::TTR) {
-                if (mouseX >= 0 && mouseX <= 93 && mouseY >= 0 && mouseY <= 62) {
-                    gameState = GameState::MENU;
-                }
-            }
-
-            if (gameState == GameState::PAUSE) {
-                if (mouseX >= 180 && mouseX <= 519 && mouseY >= 118 && mouseY <= 258) {
-                    gameState = GameState::PLAY;
-                }
-                if (mouseX >= 215 && mouseX <= 481 && mouseY >= 278 && mouseY <= 416) {
-                    resetGame(graphics);
-                    gameState = GameState::PLAY;
-                }
-                if (mouseX >= 0 && mouseX <= 590 && mouseY >= 459 && mouseY <= 579) {
-                    gameState = GameState::MENU;
-                }
-            }
-
-            if (gameState == GameState::GAMEOVER) {
-
-                if (mouseX >= 306 && mouseX <= 393 && mouseY >= 488 && mouseY <= 542) {
-                    resetGame(graphics);
-                    gameState = GameState::MENU;
-                }
+            case GameState::GAMEOVER:
+                    if (mouseX >= 306 && mouseX <= 393 && mouseY >= 488 && mouseY <= 542) {
+                        resetGame(graphics);
+                        gameState = GameState::MENU;
+                    }
+                    break;
             }
         }
     }
 }
 
-inline void updateGame(Graphics& graphics) {
+ void updateGame(Graphics& graphics) {
     const Uint8* keys = SDL_GetKeyboardState(NULL);
-    if (keys[SDL_SCANCODE_A]) { player.turnWest(); currentCar = &car_left; }
-    else if (keys[SDL_SCANCODE_D]) { player.turnEast(); currentCar = &car_right; }
-    else if (keys[SDL_SCANCODE_W]) { player.turnNorth(); currentCar = &car; }
-    else if (keys[SDL_SCANCODE_S]) { player.turnSouth(); currentCar = &car; }
-    else { player.stop(); currentCar = &car; }
+    if (keys[SDL_SCANCODE_A])      { player.turnWest(); currentCar = &car_left; Flash=flash_left; }
+    else if (keys[SDL_SCANCODE_D]) { player.turnEast(); currentCar = &car_right; Flash=flash_right; }
+    else if (keys[SDL_SCANCODE_W]) { player.turnNorth(); currentCar = &car; Flash=flash; }
+    else if (keys[SDL_SCANCODE_S]) { player.turnSouth(); currentCar = &car; Flash=flash; }
+    else                           { player.stop(); currentCar = &car;Flash=flash; }
 
     player.move();
     bg.scroll(12);
@@ -210,7 +228,7 @@ inline void updateGame(Graphics& graphics) {
     }
 }
 
-inline void renderGame(Graphics& graphics) {
+ void renderGame(Graphics& graphics) {
     controlMusic(graphics);
     graphics.prepareScene();
 
@@ -231,28 +249,35 @@ inline void renderGame(Graphics& graphics) {
         renderObstacles(graphics);
 
         if (gameState == GameState::PAUSE || gameState == GameState::GAMEOVER) {
-            if (gameState == GameState::GAMEOVER) {
 
+            if (gameState == GameState::GAMEOVER) {
                 Boomm ->tick();
                 graphics.render_boom(player.x-50,player.y-50,*Boomm);
+                flashCar=FlashCar::OFF;
             }
+
             SDL_SetRenderDrawBlendMode(graphics.renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(graphics.renderer, 0, 0, 0, 120);
+            SDL_SetRenderDrawColor(graphics.renderer, 0, 0, 0, 900);
             SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
             SDL_RenderFillRect(graphics.renderer, &overlay);
+
 
             if (gameState == GameState::PAUSE)graphics.renderTexture(pauseTexture, 0, 0);
             else graphics.renderTexture(gameoverTexture, 0, 0);
         }
     }
-    graphics.renderTexture(musicTexture,0,0);
+    if(flashCar==FlashCar::ON && gameState==GameState::PLAY){
+
+        graphics.renderTexture(Flash,player.x-80,player.y-77);
+    }
+    if(gameState!=GameState::TTR)graphics.renderTexture(musicTexture,0,0);
     graphics.presentScene();
 }
 
-inline bool isQuit() { return quit; }
-inline bool isPlaying() { return gameState == GameState::PLAY; }
+ bool isQuit() { return quit; }
+ bool isPlaying() { return gameState == GameState::PLAY; }
 
-inline void cleanupGame(Graphics& graphics) {
+ void cleanupGame(Graphics& graphics) {
     clearObstacles();
     freeObstacleTextures();
     SDL_DestroyTexture(menuTexture);

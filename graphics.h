@@ -169,6 +169,7 @@ void setSoundVolume(Mix_Chunk* chunk, int volume) {
         SDL_Rect dest = {x, y, sprite.getCurrentClip()->w, sprite.getCurrentClip()->h};
         SDL_RenderCopy(renderer, sprite.texture, sprite.getCurrentClip(), &dest);
     }
+
 };
 
 #endif
