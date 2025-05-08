@@ -8,6 +8,8 @@
 #include "graphics.h"
 #include "defs.h"
 
+extern int score;
+
 struct Obstacle {
     int x, y, speed;
     Sprite sprite;
@@ -67,7 +69,8 @@ struct Obstacle {
         usedLanes.push_back(laneIndex);
         int x = obsLanes[laneIndex];
         int y = -(rand() % 150 + i * 150);
-        int speed = rand() % 20 + 5;
+        int speed = rand() % 10 + 7;
+
 
         Obstacle obs;
         SDL_Texture* tex = obstacleTextures[i % 4];
@@ -76,20 +79,29 @@ struct Obstacle {
     }
 }
 
- void updateObstacles() {
+void updateObstacles() {
     bool laneOccupied[8] = {false};
 
     for (auto& obs : obstacles) {
         obs.move();
         obs.sprite.tick();
+    }
 
+    for (const auto& obs : obstacles) {
         for (int i = 0; i < 8; ++i) {
-            if (obs.x == obsLanes[i] && obs.y > -80 && obs.y < SCREEN_HEIGHT)
+            if (obs.x == obsLanes[i] && obs.y > -80 && obs.y < SCREEN_HEIGHT) {
                 laneOccupied[i] = true;
+            }
         }
+    }
 
+    for (auto& obs : obstacles) {
         if (obs.y > SCREEN_HEIGHT) {
+
+            extern int score;
+            score++;
             std::vector<int> freeLanes;
+
             for (int i = 0; i < 8; ++i) {
                 if (!laneOccupied[i])
                     freeLanes.push_back(i);
@@ -104,6 +116,7 @@ struct Obstacle {
         }
     }
 }
+
 
 void renderObstacles(Graphics& graphics) {
     for (auto& obs : obstacles)

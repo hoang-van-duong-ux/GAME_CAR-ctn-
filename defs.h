@@ -6,11 +6,12 @@
 #define PLAYER_HEIGHT 100
 
 const int SCREEN_WIDTH = 700, SCREEN_HEIGHT = 700;
-#define WINDOW_TITLE "Hello World!"
+#define WINDOW_TITLE " DI XE CHU Y CAN THAN "
 #define BACKGROUND_IMG "graphics//background//map1.png"
 
-const char* CAR_SPRITE_FILE = "graphics/player/car.png";
+const char* Game_Font = "graphics/font/MouldyCheeseRegular-WyMWG.ttf";
 
+const char* CAR_SPRITE_FILE = "graphics/player/car.png";
 
 const int CAR_CLIPS[][4] = {
     {0,0,100,100},{100,0,100,100},{200,0,100,100},{300,0,100,100}

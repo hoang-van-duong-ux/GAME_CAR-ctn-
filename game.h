@@ -30,15 +30,17 @@ struct Mouse {
     SDL_Rect getRect() const { return {x, y, 50, 70}; }
 };
 
-enum class GameState  { MENU, PLAY, PAUSE, GAMEOVER, TTR };
-enum class MusicState {PAUSE_MUSIC,PLAY_MUSIC,NONE};
-enum class FlashCar   { ON , OFF };
+ enum class GameState  { MENU, PLAY, PAUSE, GAMEOVER, TTR };
+ enum class MusicState {PAUSE_MUSIC,PLAY_MUSIC,NONE};
+ enum class FlashCar   { ON , OFF };
 
  GameState gameState;
  MusicState musicState;
-FlashCar flashCar;
+ FlashCar flashCar;
 
  bool quit = false;
+ int score = 0;
+
  Mouse player;
  ScrollingBackground bg;
  Sprite car, car_left, car_right;
@@ -57,13 +59,15 @@ FlashCar flashCar;
  SDL_Texture* flash;
  SDL_Texture* musicTexture;
 
+ TTF_Font* gameFont;
+ TTF_Font* EndGameFont;
+
  Mix_Music* gMusic;
  Mix_Music* gIntro;
  Mix_Chunk* click;
  Mix_Chunk* boom;
  Mix_Chunk* car_horn;
-  static Mix_Music* currentMusic = nullptr;
-
+ static Mix_Music* currentMusic = nullptr;
 
  void setupGame(Graphics& graphics) {
     bg.setTexture(graphics.loadTexture(BACKGROUND_IMG));
@@ -91,6 +95,9 @@ FlashCar flashCar;
     click = graphics.loadSound("music/click.mp3");
     boom = graphics.loadSound("music/play/boom.mp3");
     car_horn = graphics.loadSound("music/play/car_horn.mp3");
+
+    gameFont = graphics.loadFont(Game_Font, 28);
+    EndGameFont = graphics.loadFont(Game_Font,80);
 
     initObstacles(graphics, 8);
     loadObstacleTextures(graphics);
@@ -131,7 +138,7 @@ FlashCar flashCar;
  void resetGame(Graphics& graphics) {
     player = Mouse();
     currentCar = &car;
-
+    score=0;
     clearObstacles();
     initObstacles(graphics, 5);
 }
@@ -243,7 +250,10 @@ FlashCar flashCar;
     else if (gameState == GameState::PLAY || gameState == GameState::PAUSE || gameState == GameState::GAMEOVER) {
 
         graphics.render_background(bg);
-        if (gameState == GameState::PLAY) currentCar->tick();
+
+        if (gameState == GameState::PLAY) {
+            currentCar->tick();
+        }
         if(gameState==GameState::PLAY||gameState==GameState::PAUSE) graphics.render_car(player.x, player.y, *currentCar);
         graphics.renderTexture(ppTexture, 0, 0);
         renderObstacles(graphics);
@@ -264,6 +274,20 @@ FlashCar flashCar;
 
             if (gameState == GameState::PAUSE)graphics.renderTexture(pauseTexture, 0, 0);
             else graphics.renderTexture(gameoverTexture, 0, 0);
+        }
+        if(gameState!=GameState::GAMEOVER){
+            SDL_Color white = {255, 255, 255};
+            std::string scoreText = "Score: " + std::to_string(score);
+            SDL_Texture* textTexture = graphics.renderText(scoreText.c_str(), gameFont, white);
+            graphics.renderTexture(textTexture, 10, 10);
+            SDL_DestroyTexture(textTexture);
+        }else{
+            SDL_Color white = {255,255,255};
+            std::string scoreText = "SCORE : " + std::to_string(score);
+            SDL_Texture* textTexture = graphics.renderText(scoreText.c_str(), EndGameFont, white);
+            graphics.renderTexture(textTexture, 174,200 );
+            SDL_DestroyTexture(textTexture);
+
         }
     }
     if(flashCar==FlashCar::ON && gameState==GameState::PLAY){
