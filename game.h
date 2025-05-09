@@ -43,8 +43,8 @@ struct Mouse {
 
  Mouse player;
  ScrollingBackground bg;
- Sprite car, car_left, car_right;
- Sprite* currentCar;
+ Sprite car1, car_left1, car_right1;
+ Sprite* currentCar1;
  SpriteBoom Boom;
  SpriteBoom* Boomm;
 
@@ -83,10 +83,10 @@ struct Mouse {
 
     Flash=flash;
 
-    car.init(graphics.loadTexture(CAR_SPRITE_FILE), CAR_FRAMES, CAR_CLIPS);
-    car_left.init(graphics.loadTexture("graphics/player/car_left.png"), CAR_FRAMES, CAR_CLIPS);
-    car_right.init(graphics.loadTexture("graphics/player/car_right.png"), CAR_FRAMES, CAR_CLIPS);
-    currentCar = &car;
+    car1.init(graphics.loadTexture(CAR_SPRITE_FILE), CAR_FRAMES, CAR_CLIPS);
+    car_left1.init(graphics.loadTexture(CAR_SPRITE_FILE_LEFT), CAR_FRAMES, CAR_CLIPS);
+    car_right1.init(graphics.loadTexture(CAR_SPRITE_FILE_RIGHT), CAR_FRAMES, CAR_CLIPS);
+    currentCar1 = &car1;
     Boom.init(graphics.loadTexture("graphics/out/no.png"), BOOM_FRAMES, BOOM_CLIPS);
     Boomm=&Boom;
 
@@ -137,7 +137,7 @@ struct Mouse {
 
  void resetGame(Graphics& graphics) {
     player = Mouse();
-    currentCar = &car;
+    currentCar1 = &car1;
     score=0;
     clearObstacles();
     initObstacles(graphics, 5);
@@ -181,10 +181,10 @@ struct Mouse {
                     break;
 
                 case GameState::MENU:
-                    if (mouseX >= 269 && mouseX <= 429 && mouseY >= 259 && mouseY <= 320) {
+                    if (mouseX >= 269 && mouseX <= 429 && mouseY >= 393 && mouseY <= 454) {
                         resetGame(graphics);
                         gameState = GameState::PLAY;
-                    } else if (mouseX >= 133 && mouseX <= 566 && mouseY >= 354 && mouseY <= 444) {
+                    } else if (mouseX >= 133 && mouseX <= 566 && mouseY >= 488 && mouseY <= 578) {
                         gameState = GameState::TTR;
                     }
                     break;
@@ -211,6 +211,10 @@ struct Mouse {
                         resetGame(graphics);
                         gameState = GameState::MENU;
                     }
+                    if (mouseX >= 306 && mouseX <= 393 && mouseY >= 566 && mouseY <= 619) {
+                        resetGame(graphics);
+                        gameState = GameState::PLAY;
+                    }
                     break;
             }
         }
@@ -219,15 +223,15 @@ struct Mouse {
 
  void updateGame(Graphics& graphics) {
     const Uint8* keys = SDL_GetKeyboardState(NULL);
-    if (keys[SDL_SCANCODE_A])      { player.turnWest(); currentCar = &car_left; Flash=flash_left; }
-    else if (keys[SDL_SCANCODE_D]) { player.turnEast(); currentCar = &car_right; Flash=flash_right; }
-    else if (keys[SDL_SCANCODE_W]) { player.turnNorth(); currentCar = &car; Flash=flash; }
-    else if (keys[SDL_SCANCODE_S]) { player.turnSouth(); currentCar = &car; Flash=flash; }
-    else                           { player.stop(); currentCar = &car;Flash=flash; }
+    if      (keys[SDL_SCANCODE_A]||keys[SDL_SCANCODE_LEFT]) { player.turnWest(); currentCar1 = &car_left1; Flash=flash_left; }
+    else if (keys[SDL_SCANCODE_D]||keys[SDL_SCANCODE_RIGHT]) { player.turnEast(); currentCar1 = &car_right1; Flash=flash_right; }
+    else if (keys[SDL_SCANCODE_W]||keys[SDL_SCANCODE_UP]) { player.turnNorth(); currentCar1 = &car1; Flash=flash; }
+    else if (keys[SDL_SCANCODE_S]||keys[SDL_SCANCODE_DOWN]) { player.turnSouth(); currentCar1 = &car1; Flash=flash; }
+    else                                                    { player.stop(); currentCar1 = &car1;Flash=flash; }
 
     player.move();
     bg.scroll(12);
-    updateObstacles();
+    updateObstacles(8);
 
     if (checkPlayerCollision(player.getRect())){
         graphics.plays(boom);
@@ -252,9 +256,9 @@ struct Mouse {
         graphics.render_background(bg);
 
         if (gameState == GameState::PLAY) {
-            currentCar->tick();
+            currentCar1->tick();
         }
-        if(gameState==GameState::PLAY||gameState==GameState::PAUSE) graphics.render_car(player.x, player.y, *currentCar);
+        if(gameState==GameState::PLAY||gameState==GameState::PAUSE) graphics.render_car(player.x, player.y, *currentCar1);
         graphics.renderTexture(ppTexture, 0, 0);
         renderObstacles(graphics);
 

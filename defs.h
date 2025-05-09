@@ -12,6 +12,8 @@ const int SCREEN_WIDTH = 700, SCREEN_HEIGHT = 700;
 const char* Game_Font = "graphics/font/MouldyCheeseRegular-WyMWG.ttf";
 
 const char* CAR_SPRITE_FILE = "graphics/player/car.png";
+const char* CAR_SPRITE_FILE_LEFT  ="graphics/player/car_left.png";
+const char* CAR_SPRITE_FILE_RIGHT ="graphics/player/car_right.png";
 
 const int CAR_CLIPS[][4] = {
     {0,0,100,100},{100,0,100,100},{200,0,100,100},{300,0,100,100}

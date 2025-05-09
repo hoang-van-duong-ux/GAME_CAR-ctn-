@@ -10,6 +10,7 @@
 
 extern int score;
 
+
 struct Obstacle {
     int x, y, speed;
     Sprite sprite;
@@ -20,17 +21,15 @@ struct Obstacle {
         speed = _speed;
         sprite.init(texture, frames, clips);
     }
-
     void move() {
         y += speed;
     }
-
     SDL_Rect getRect() const {
         return {x, y, 50, 70};
     }
 };
 
- std::vector<Obstacle> obstacles;
+std::vector<Obstacle> obstacles;
 
  const char* OBSTACLE_IMAGES[] = {
     "graphics/button/oto_canh_sat.png",
@@ -69,7 +68,7 @@ struct Obstacle {
         usedLanes.push_back(laneIndex);
         int x = obsLanes[laneIndex];
         int y = -(rand() % 150 + i * 150);
-        int speed = rand() % 10 + 7;
+        int speed = rand() % 5 + 10;
 
 
         Obstacle obs;
@@ -79,8 +78,8 @@ struct Obstacle {
     }
 }
 
-void updateObstacles() {
-    bool laneOccupied[8] = {false};
+void updateObstacles(int lane) {
+    bool laneOccupied[lane] = {false};
 
     for (auto& obs : obstacles) {
         obs.move();
@@ -88,7 +87,7 @@ void updateObstacles() {
     }
 
     for (const auto& obs : obstacles) {
-        for (int i = 0; i < 8; ++i) {
+        for (int i = 0; i < lane; ++i) {
             if (obs.x == obsLanes[i] && obs.y > -80 && obs.y < SCREEN_HEIGHT) {
                 laneOccupied[i] = true;
             }
@@ -97,26 +96,22 @@ void updateObstacles() {
 
     for (auto& obs : obstacles) {
         if (obs.y > SCREEN_HEIGHT) {
-
             extern int score;
             score++;
             std::vector<int> freeLanes;
-
-            for (int i = 0; i < 8; ++i) {
+            for (int i = 0; i < lane; ++i) {
                 if (!laneOccupied[i])
                     freeLanes.push_back(i);
             }
-
             if (!freeLanes.empty()) {
                 int newLane = freeLanes[rand() % freeLanes.size()];
                 obs.x = obsLanes[newLane];
-                obs.y = -rand() % 300;
+                obs.y = -100;
                 laneOccupied[newLane] = true;
             }
         }
     }
 }
-
 
 void renderObstacles(Graphics& graphics) {
     for (auto& obs : obstacles)
