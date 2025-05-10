@@ -57,4 +57,4 @@ Một game 2D top-down nơi bạn điều khiển một chiếc ô tô trên 8 l
  - https://phattrienphanmem123az.com/
  - https://lazyfoo.net/tutorials/SDL/
 - Một số website âm thanh hình ảnh: pixabay.com,vnvoice.ne,textcraft.net ...
-- Trong quá trình làm game, em có gặp một số bug khó và lỗi ,do chưa có kinh nghiệm trong việc debug nên có sử dụng AI hỗ trợ như chatgbt , deepseek , Genmini.
+- Trong quá trình làm game, em có gặp một số bug khó và lỗi ,do chưa có kinh nghiệm trong việc debug nên có sử dụng AI hỗ trợ như Chatgbt , Deepseek , Genmini.
