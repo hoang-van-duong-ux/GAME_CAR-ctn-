@@ -6,7 +6,7 @@
 	"obstacle.h"
 	<ctime>
 
-1746714768 c:\users\pc\onedrive\desktop\game_car\graphics.h
+1746842454 c:\users\pc\onedrive\desktop\game_car\graphics.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -16,7 +16,7 @@
 
 1746781635 c:\users\pc\onedrive\desktop\game_car\defs.h
 
-1746781745 c:\users\pc\onedrive\desktop\game_car\game.h
+1746843137 c:\users\pc\onedrive\desktop\game_car\game.h
 	<bits/stdc++.h>
 	"defs.h"
 	<SDL.h>

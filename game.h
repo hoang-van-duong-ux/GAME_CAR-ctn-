@@ -40,6 +40,7 @@ struct Mouse {
 
  bool quit = false;
  int score = 0;
+ int highScore = 0;
 
  Mouse player;
  ScrollingBackground bg;
@@ -68,6 +69,16 @@ struct Mouse {
  Mix_Chunk* boom;
  Mix_Chunk* car_horn;
  static Mix_Music* currentMusic = nullptr;
+
+void loadHighScore() {
+    std::ifstream inFile("highscore.txt");
+    if (inFile.is_open()) {
+        inFile >> highScore;
+        inFile.close();
+    } else {
+        highScore = 0;
+    }
+}
 
  void setupGame(Graphics& graphics) {
     bg.setTexture(graphics.loadTexture(BACKGROUND_IMG));
@@ -110,6 +121,7 @@ struct Mouse {
     graphics.setMusicVolume(45);
     graphics.setSoundVolume(boom,70);
     graphics.setSoundVolume(click,20);
+    loadHighScore();
 }
 
  void controlMusic(Graphics& graphics) {
@@ -235,6 +247,9 @@ struct Mouse {
 
     if (checkPlayerCollision(player.getRect())){
         graphics.plays(boom);
+        if (score > highScore) {
+            highScore = score;
+        }
         gameState = GameState::GAMEOVER;
     }
 }
@@ -245,6 +260,11 @@ struct Mouse {
 
     if (gameState == GameState::MENU) {
         graphics.renderTexture(menuTexture, 0, 0);
+        SDL_Color white = {255, 255, 255};
+        std::string scoreText__ = "High Score: " + std::to_string(highScore);
+        SDL_Texture* textTexture__ = graphics.renderText(scoreText__.c_str(), gameFont, white);
+        graphics.renderTexture(textTexture__, 10, 10);
+        SDL_DestroyTexture(textTexture__);
     }
 
     else if (gameState == GameState::TTR) {
@@ -288,10 +308,13 @@ struct Mouse {
         }else{
             SDL_Color white = {255,255,255};
             std::string scoreText = "SCORE : " + std::to_string(score);
+            std::string scoreText_ = "HIGH SCORE : " + std::to_string(highScore);
             SDL_Texture* textTexture = graphics.renderText(scoreText.c_str(), EndGameFont, white);
+            SDL_Texture* textTexture_ = graphics.renderText(scoreText_.c_str(), EndGameFont, white);
+            graphics.renderTexture(textTexture_, 70,100 );
             graphics.renderTexture(textTexture, 174,200 );
             SDL_DestroyTexture(textTexture);
-
+            SDL_DestroyTexture(textTexture_);
         }
     }
     if(flashCar==FlashCar::ON && gameState==GameState::PLAY){
@@ -300,6 +323,14 @@ struct Mouse {
     }
     if(gameState!=GameState::TTR)graphics.renderTexture(musicTexture,0,0);
     graphics.presentScene();
+}
+
+ void saveHighScore() {
+    std::ofstream outFile("highscore.txt");
+    if (outFile.is_open()) {
+        outFile << highScore;
+        outFile.close();
+    }
 }
 
  bool isQuit() { return quit; }
@@ -312,6 +343,7 @@ struct Mouse {
     Mix_FreeMusic(gMusic);
     Mix_FreeMusic(gIntro);
     Mix_FreeChunk(click);
+    saveHighScore();
 }
 
 #endif // GAME_H

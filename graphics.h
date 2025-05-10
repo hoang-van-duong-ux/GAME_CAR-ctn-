@@ -44,7 +44,7 @@ struct SpriteBoom {
     void init(SDL_Texture* _texture, int frames, const int _clips[][8]) {
         texture = _texture;
         for (int i = 0; i < frames; ++i)
-            clips.push_back({ _clips[i][0], _clips[i][1], _clips[i][2], _clips[i][3] /*,_clips[i][3] ,_clips[i][3] ,_clips[i][3] ,_clips[i][3]*/});
+            clips.push_back({ _clips[i][0], _clips[i][1], _clips[i][2], _clips[i][3]});
     }
 
     void tick() { currentFrame = (currentFrame + 1) % clips.size(); }
@@ -201,7 +201,6 @@ void setSoundVolume(Mix_Chunk* chunk, int volume) {
         SDL_FreeSurface( textSurface );
         return texture;
     }
-
 
 };
 
