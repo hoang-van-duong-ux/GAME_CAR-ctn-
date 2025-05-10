@@ -1,3 +1,5 @@
+
+## Hoàng Văn Dương _ MSV 24021437_ lớp INT2215_6
 # Racing Car - Game 2D Top-down (SDL2 - Windows)
  
 Một game 2D top-down nơi bạn điều khiển một chiếc ô tô trên 8 làn đường, tránh xe cộ để lấy điểm . Game được viết bằng **SDL2** và chạy tốt trên **Windows**. Khi một xe vật cản chạy ra ngoài màn hình sẽ được cộng một điểm.
